@@ -119,8 +119,9 @@ public class FileDialog extends Plugin {
       case PICK_FILE_RESULT_CODE:
       case PICK_DIRECTORY_RESULT_CODE: {
           if (resultCode==Activity.RESULT_OK && data!=null && data.getData()!=null) {
-              String filePath = data.getData().getPath();
+              String filePath = "file://" + data.getData().getPath();
               Log.d(LOG_TAG, "The data is = " + filePath);
+              Log.d(LOG_TAG, "Calling succes with callback id = " + this.callbackId);
               this.success(new PluginResult(PluginResult.Status.OK, filePath), this.callbackId);
           }
           break;
