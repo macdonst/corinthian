@@ -19,11 +19,23 @@ var corinthian = {
             cordova.exec(win, errorCallback, "FileDialog", "pickFolder", [options]);
         }    
     },
-    punchInputFileType: function() {
-        var inputs = document.getElementsByTagName("input");
-        
+    ContactPicker: {
+        choose: function(successCallback, errorCallback) {
+            var win = typeof successCallback !== 'function' ? null : function(contact) {
+                successCallback(navigator.contacts.create(contact));
+            };
+            cordova.exec(win, errorCallback, "ContactPicker", "choose", []);
+        }
+    },
+    Video: {
+        play: function(url) {
+            cordova.exec(null, null, "VideoPlayer", "playVideo", [url]);
+        }
+    },
+    monkeypunch: function() {
+        // patch file chooser
+        var inputs = document.getElementsByTagName("input");        
         for (var i=0; i < inputs.length; i++) {
-           console.log("input " + i);
            if (inputs[i].getAttribute('type') == 'file'){
                var me = inputs[i];
                inputs[i].addEventListener("click", function() {
@@ -33,15 +45,15 @@ var corinthian = {
                });
            }
         }
-    },
-    ContactPicker: {
-        choose: function(successCallback, errorCallback) {
-            var win = typeof successCallback !== 'function' ? null : function(contact) {
-                successCallback(navigator.contacts.create(contact));
-            };
-            cordova.exec(win, errorCallback, "ContactPicker", "choose", []);
+        // patch videos
+        var videos = document.getElementsByTagName("video");        
+        for (var i=0; i < videos.length; i++) {
+           var me = videos[i];
+           videos[i].addEventListener("click", function() {
+               corinthian.Video.play(me.src);
+           });
         }
     }
 };
 
-document.addEventListener("deviceready", corinthian.punchInputFileType, true);
+document.addEventListener("deviceready", corinthian.monkeypunch, true);
