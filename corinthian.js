@@ -83,8 +83,9 @@ var corinthian = {
                     newImg.src = "images/play.png";
                     corinthian.mediaObjs[audioSrc].pause();                
                 }
-            })
-            document.body.appendChild(newAudio);
+            });
+            // replace the audio tag with out div
+            audioclips[i].parentNode.replaceChild(newAudio, audioclips[i]);
         }
 
     }
