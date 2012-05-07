@@ -1,5 +1,6 @@
 var corinthian = {
     version: "0.1",
+    mediaObjs: {},
     
     FileDialog: {
         pickFile: function(successCallback, errorCallback, options) {
@@ -46,13 +47,46 @@ var corinthian = {
            }
         }
         // patch videos
-        var videos = document.getElementsByTagName("video");        
+        var videos = document.getElementsByTagName("video");
         for (var i=0; i < videos.length; i++) {
-           var me = videos[i];
-           videos[i].addEventListener("click", function() {
-               corinthian.Video.play(me.src);
-           });
+            var me;
+            if (videos[i].src) {
+                me = videos[i].src;
+            } else {
+                me = videos[i].firstElementChild.src; 
+            } 
+            videos[i].addEventListener("click", function() {
+                corinthian.Video.play(me);
+            });
         }
+        // patch audio
+        var audioclips = document.getElementsByTagName("audio");
+        for (var i=0; i < audioclips.length; i++) {
+            // Create new Media object.
+            var audioSrc = audioclips[i].firstElementChild.src;
+            if (audioSrc.indexOf("file:///android_asset") == 0) {
+                audioSrc = audioSrc.substring(7);
+            }
+            corinthian.mediaObjs[audioSrc] = new Media(audioSrc);
+            // Create the HTML
+            var newAudio = document.createElement('div');
+            var newImg = document.createElement('img');
+            newImg.setAttribute('src', 'images/play.png');
+            newAudio.appendChild(newImg);
+            // Set the onclick listener
+            newAudio.addEventListener("click", function() {
+                // figure out what image is displayed
+                if (newImg.src.indexOf("images/play.png", newImg.src.length - "images/play.png".length) !== -1) {
+                    newImg.src = "images/pause.png"; 
+                    corinthian.mediaObjs[audioSrc].play();               
+                } else {
+                    newImg.src = "images/play.png";
+                    corinthian.mediaObjs[audioSrc].pause();                
+                }
+            })
+            document.body.appendChild(newAudio);
+        }
+
     }
 };
 
