@@ -37,7 +37,7 @@
 
 <h3>Philosophy</h3>
 
-<p>We think Apache Cordova is great but there are some things that it doesn't address as they are outside of it's bailiwick. One of those items is a rich UI. Sometimes building Apache Cordova applications is more difficult than it could be as it doesn't (nor shouldn't) provide UI components. The philosophy of the Corinthian project is to provide some of these UI components like contact and file pickers as well as we'll monkey punch the  and  tags so you won't have to change your HTML code when porting you application to Android.</p>
+<p>We think Apache Cordova is great but there are some things that it doesn't address as they are outside of it's bailiwick. One of those items is a rich UI. Sometimes building Apache Cordova applications is more difficult than it could be as it doesn't (nor shouldn't) provide UI components. The philosophy of the Corinthian project is to provide some of these UI components like contact and file pickers as well as we'll monkey punch the &lt;audio/&gt; and&lt;video/&gt; tags so you won't have to change your HTML code when porting you application to Android.</p>
 
 <h3>Future Plans</h3>
 
@@ -45,7 +45,18 @@
 
 <h3>Installation</h3>
 
-<p>TBD</p>
+<p>Things will get easier soon but for now:</p>
+<ul>
+<li>Run `ant jar`</li>
+<li>Copy the corinthian-0.1.0.jar file to your Android project's lib directory</li>
+<li>Copy the assets/www/corinthian.js to your Android projects assets/www directory</li>
+<li>Add the following lines to your res/xml/plugins.xml file:<li>
+    &lt;plugin name="FileDialog" value="com.simonmacdonald.corinthian.FileDialog"/&gt;
+    &lt;plugin name="ContactPicker" value="com.simonmacdonald.corinthian.ContactPicker"/&gt;
+    &lt;plugin name="VideoPlayer" value="com.simonmacdonald.corinthian.VideoPlayer"/&gt;
+<li>Finally link the corinthian.js file in your HTML file using the script tag.</li>
+    &lt;script type="text/javascript" charset="utf-8" src="corinthian.js"/&gt;
+</ul>
 
 <h3>Contributing</h3>
 
