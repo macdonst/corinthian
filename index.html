@@ -47,20 +47,25 @@
 
 <p>Things will get easier soon but for now:</p>
 <ul>
-<li>Run `ant jar`</li>
+<li>Run <b>`ant jar`</b></li>
 <li>Copy the corinthian-0.1.0.jar file to your Android project's lib directory</li>
 <li>Copy the assets/www/corinthian.js to your Android projects assets/www directory</li>
 <li>Add the following lines to your res/xml/plugins.xml file:<li>
+</ul>
+<pre>
     &lt;plugin name="FileDialog" value="com.simonmacdonald.corinthian.FileDialog"/&gt;
     &lt;plugin name="ContactPicker" value="com.simonmacdonald.corinthian.ContactPicker"/&gt;
     &lt;plugin name="VideoPlayer" value="com.simonmacdonald.corinthian.VideoPlayer"/&gt;
+</pre>
+<ul>
 <li>Finally link the corinthian.js file in your HTML file using the script tag.</li>
-    &lt;script type="text/javascript" charset="utf-8" src="corinthian.js"/&gt;
 </ul>
-
+<pre>
+    &lt;script type="text/javascript" charset="utf-8" src="corinthian.js"/&gt;
+</pre>
 <h3>Contributing</h3>
 
-<p>Clone the git repository for the project.
+<p>Clone the git repository for the project.<br/>
 Send a pull request on GitHub with your changes.</p>
 
 <h3>Authors and Contributors</h3>
