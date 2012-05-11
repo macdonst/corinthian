@@ -1,0 +1,6 @@
+.DS_Store
+bin
+gen
+libs
+local.properties
+corinthian-*.jar
