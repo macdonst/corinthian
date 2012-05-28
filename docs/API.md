@@ -3,7 +3,7 @@ API Documentation
 
 * ContactPicker
 * FileDialog
-* VideoPlayer
+* Video
 * Audio
 
 ContactPicker
