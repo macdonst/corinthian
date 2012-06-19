@@ -1,26 +1,27 @@
 var corinthian = {
     version: "0.1",
     mediaObjs: {},
-    
+    mediaTimers: {},
+
     FileDialog: {
         pickFile: function(successCallback, errorCallback, options) {
             var win = typeof successCallback !== 'function' ? null : function(f) {
                 window.resolveLocalFileSystemURI(f, function(fileEntry) {
-                    successCallback(fileEntry);                    
+                    successCallback(fileEntry);
                 }, fail);
             };
             cordova.exec(win, errorCallback, "FileDialog", "pickFile", [options]);
-        },    
+        },
         pickFolder: function(successCallback, errorCallback, options) {
             var win = typeof successCallback !== 'function' ? null : function(d) {
                 window.resolveLocalFileSystemURI(d, function(dirEntry) {
-                    successCallback(dirEntry);                    
+                    successCallback(dirEntry);
                 }, fail);
             };
             cordova.exec(win, errorCallback, "FileDialog", "pickFolder", [options]);
         },
         patch: function() {
-            var inputs = document.getElementsByTagName("input");        
+            var inputs = document.getElementsByTagName("input");
             for (var i=0; i < inputs.length; i++) {
                if (inputs[i].getAttribute('type') == 'file'){
                    var me = inputs[i];
@@ -52,8 +53,8 @@ var corinthian = {
                 if (videos[i].src) {
                     me = videos[i].src;
                 } else {
-                    me = videos[i].firstElementChild.src; 
-                } 
+                    me = videos[i].firstElementChild.src;
+                }
                 videos[i].addEventListener("click", function() {
                     corinthian.Video.play(me);
                 });
@@ -69,34 +70,69 @@ var corinthian = {
                 if (audioSrc.indexOf("file:///android_asset") == 0) {
                     audioSrc = audioSrc.substring(7);
                 }
-                corinthian.mediaObjs[audioSrc] = new Media(audioSrc);
+                corinthian.mediaObjs[audioSrc] = new Media(audioSrc, function() {
+                    clearInterval(corinthian.mediaTimers[audioSrc]);
+                    document.getElementById('image'+corinthian.mediaObjs[audioSrc].id).src = "images/play.png";
+                    document.getElementById('audio_position'+corinthian.mediaObjs[audioSrc].id).innerHTML = "00:00";
+                });
+                var mediaObj = corinthian.mediaObjs[audioSrc];
                 // Create the HTML
                 var newAudio = document.createElement('div');
+                newAudio.setAttribute("id", "audio"+mediaObj.id);
                 var newImg = document.createElement('img');
                 newImg.setAttribute('src', 'images/play.png');
+                newImg.setAttribute("id", "image"+mediaObj.id);
                 newAudio.appendChild(newImg);
                 // Set the onclick listener
                 newAudio.addEventListener("click", function() {
                     // figure out what image is displayed
                     if (newImg.src.indexOf("images/play.png", newImg.src.length - "images/play.png".length) !== -1) {
-                        newImg.src = "images/pause.png"; 
-                        corinthian.mediaObjs[audioSrc].play();               
+                        newImg.src = "images/pause.png";
+                        mediaObj.play();
+                        // Update media position every second
+                        corinthian.mediaTimers[audioSrc] = setInterval(function() {
+                            // get media position
+                            mediaObj.getCurrentPosition(
+                                // success callback
+                                function(position) {
+                                    console.log("pos = " + position);
+                                    if (position > 0) {
+                                        var pad = function(t){
+                                            if (t < 10) {
+                                                return "0" + t;
+                                            }
+                                            return t;
+                                        };
+                                        document.getElementById('audio_position'+mediaObj.id).innerHTML = pad(Math.floor(position / 60)) + ":" + pad(Math.floor(position % 60));
+                                        //document.getElementById('duration').innerHTML = corinthian.mediaObjs[audioSrc].getDuration();
+                                    }
+                                },
+                                // error callback
+                                function(e) {
+                                    console.log("Error getting pos=" + e);
+                                }
+                            );
+                        }, 1000);
                     } else {
                         newImg.src = "images/play.png";
-                        corinthian.mediaObjs[audioSrc].pause();                
+                        mediaObj.pause();
                     }
                 });
+                var duration = document.createElement('span');
+                duration.setAttribute('id', 'audio_position'+mediaObj.id);
+                duration.innerHTML = "00:00";
+                newAudio.appendChild(duration);
                 // replace the audio tag with out div
                 audioclips[i].parentNode.replaceChild(newAudio, audioclips[i]);
             }
-        }  
+        }
     },
     monkeypunch: function() {
         var scripts = document.getElementsByTagName('script'),
             len = scripts.length,
-            src, 
+            src,
             patch = "none";
-        
+
         while (len--) {
             src = scripts[len].src;
             console.log("src = " + src);
@@ -106,7 +142,7 @@ var corinthian = {
                 break;
             }
         }
-        
+
         if (patch === "none") {
             return;
         }
@@ -125,7 +161,7 @@ var corinthian = {
             if (patch.indexOf("video") > -1) {
                 corinthian.Video.patch();
             }
-        }        
+        }
     }
 };
 
