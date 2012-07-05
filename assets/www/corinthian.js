@@ -95,7 +95,10 @@ var corinthian = {
                             mediaObj.getCurrentPosition(
                                 // success callback
                                 function(position) {
-                                    console.log("pos = " + position);
+                                    var duration = mediaObj.getDuration();
+                                    var floor = Math.ceil((position/duration) * 100);
+                                    document.getElementById('left'+mediaObj.id).setAttribute('style', "width:"+floor+"%");
+                                    document.getElementById('right'+mediaObj.id).setAttribute('style', "width:"+(100-floor)+"%");
                                     if (position > 0) {
                                         var pad = function(t){
                                             if (t < 10) {
@@ -104,7 +107,6 @@ var corinthian = {
                                             return t;
                                         };
                                         document.getElementById('audio_position'+mediaObj.id).innerHTML = pad(Math.floor(position / 60)) + ":" + pad(Math.floor(position % 60));
-                                        //document.getElementById('duration').innerHTML = corinthian.mediaObjs[audioSrc].getDuration();
                                     }
                                 },
                                 // error callback
@@ -118,6 +120,19 @@ var corinthian = {
                         mediaObj.pause();
                     }
                 });
+                var progress = document.createElement('div');
+                progress.setAttribute('class', 'dd');
+                var left = document.createElement('div');
+                left.setAttribute('id', 'left'+mediaObj.id);
+                left.setAttribute('class', 'blue');
+                left.setAttribute('style', 'width:0%');
+                var right = document.createElement('div');
+                right.setAttribute('id', 'right'+mediaObj.id);
+                right.setAttribute('class', 'red');
+                right.setAttribute('style', 'width:100%');
+                progress.appendChild(left);
+                progress.appendChild(right);
+                newAudio.appendChild(progress);
                 var duration = document.createElement('span');
                 duration.setAttribute('id', 'audio_position'+mediaObj.id);
                 duration.innerHTML = "00:00";
@@ -135,9 +150,7 @@ var corinthian = {
 
         while (len--) {
             src = scripts[len].src;
-            console.log("src = " + src);
             if (src && src.indexOf("corinthian") > -1) {
-                console.log("I got a match");
                 patch = scripts[len].getAttribute("corinthian-patch");
                 break;
             }
