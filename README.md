@@ -24,7 +24,7 @@ Installation
 Things will get easier soon but for now:
 
 * Run **ant jar**
-* Copy the corinthian-0.1.0.jar file to your Android project's lib directory
+* Copy the corinthian-0.1.1.jar file to your Android project's lib directory
 * Copy the assets/www/corinthian.js to your Android projects assets/www directory
 * Add the following lines to your res/xml/plugins.xml file:
 > &lt;plugin name="FileDialog" value="com.simonmacdonald.corinthian.FileDialog"/&gt;
