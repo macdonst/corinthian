@@ -33,7 +33,7 @@ public class ContactPicker extends Plugin {
     @Override
     public PluginResult execute(String action, JSONArray args, String callbackId) {
         this.callbackId = callbackId;
-        
+
         JSONObject options = args.optJSONObject(0);
 
         if (action.equals("choose")) {
@@ -69,7 +69,7 @@ public class ContactPicker extends Plugin {
     private JSONObject createContact(Uri contactData) throws JSONException {
         JSONObject contact = new JSONObject();
 
-        Cursor c = this.ctx.managedQuery(contactData, null, null, null, null);  
+        Cursor c = this.cordova.getActivity().managedQuery(contactData, null, null, null, null);
         if (c.moveToFirst()) {
 //            Log.d(LOG_TAG, "Column count = " + c.getColumnCount());
 //            for (int i = 0; i < c.getColumnCount(); i++) {
@@ -96,14 +96,14 @@ public class ContactPicker extends Plugin {
         }
         return contact;
     }
-    
+
     private JSONObject queryName(String id) throws JSONException {
         JSONObject name = new JSONObject();
-        String where = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?"; 
-        String[] whereParams = new String[]{id, 
-                ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE}; 
-        Cursor c = this.ctx.getContentResolver().query(ContactsContract.Data.CONTENT_URI, null, where, whereParams, null); 
-        if (c.moveToFirst()) { 
+        String where = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?";
+        String[] whereParams = new String[]{id,
+                ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE};
+        Cursor c = this.cordova.getActivity().getContentResolver().query(ContactsContract.Data.CONTENT_URI, null, where, whereParams, null);
+        if (c.moveToFirst()) {
             String familyName = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME));
             String givenName = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME));
             String middleName = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.MIDDLE_NAME));
@@ -117,53 +117,53 @@ public class ContactPicker extends Plugin {
             if (middleName != null) { formatted.append(middleName + " "); }
             if (familyName != null) { formatted.append(familyName + " "); }
             if (honorificSuffix != null) { formatted.append(honorificSuffix + " "); }
-            
+
             name.put("familyName", familyName);
             name.put("givenName", givenName);
             name.put("middleName", middleName);
             name.put("honorificPrefix", honorificPrefix);
             name.put("honorificSuffix", honorificSuffix);
             name.put("formatted", formatted);
-        } 
+        }
         c.close();
         return name;
     }
-    
+
     private String queryBirthday(String id) {
         String birthday = null;
-        String where = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ? AND " 
-            + ContactsContract.CommonDataKinds.Event.TYPE + " = ?"; 
-        String[] whereParams = new String[]{id, 
-                ContactsContract.CommonDataKinds.Event.CONTENT_ITEM_TYPE, 
-                new String("" + ContactsContract.CommonDataKinds.Event.TYPE_BIRTHDAY)}; 
-        Cursor c = this.ctx.getContentResolver().query(ContactsContract.Data.CONTENT_URI, null, where, whereParams, null); 
-        if (c.moveToFirst()) { 
+        String where = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ? AND "
+            + ContactsContract.CommonDataKinds.Event.TYPE + " = ?";
+        String[] whereParams = new String[]{id,
+                ContactsContract.CommonDataKinds.Event.CONTENT_ITEM_TYPE,
+                new String("" + ContactsContract.CommonDataKinds.Event.TYPE_BIRTHDAY)};
+        Cursor c = this.cordova.getActivity().getContentResolver().query(ContactsContract.Data.CONTENT_URI, null, where, whereParams, null);
+        if (c.moveToFirst()) {
             birthday = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Event.START_DATE));
-        } 
+        }
         c.close();
         return birthday;
     }
-    
+
     private String queryNickname(String id) {
         String nickname = null;
-        String where = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?"; 
-        String[] whereParams = new String[]{id, 
-        ContactsContract.CommonDataKinds.Nickname.CONTENT_ITEM_TYPE}; 
-                Cursor noteCur = this.ctx.getContentResolver().query(ContactsContract.Data.CONTENT_URI, null, where, whereParams, null); 
-        if (noteCur.moveToFirst()) { 
+        String where = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?";
+        String[] whereParams = new String[]{id,
+        ContactsContract.CommonDataKinds.Nickname.CONTENT_ITEM_TYPE};
+                Cursor noteCur = this.cordova.getActivity().getContentResolver().query(ContactsContract.Data.CONTENT_URI, null, where, whereParams, null);
+        if (noteCur.moveToFirst()) {
             nickname = noteCur.getString(noteCur.getColumnIndex(ContactsContract.CommonDataKinds.Nickname.NAME));
-        } 
+        }
         noteCur.close();
         return nickname;
     }
 
     private JSONArray queryPhoto(String id) throws JSONException {
         JSONArray photos = new JSONArray();
-        String where = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?"; 
-        String[] whereParams = new String[]{id, 
-            ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE}; 
-        Cursor cursor = this.ctx.getContentResolver().query(ContactsContract.Data.CONTENT_URI, 
-                null, where, whereParams, null); 
+        String where = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?";
+        String[] whereParams = new String[]{id,
+            ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE};
+        Cursor cursor = this.cordova.getActivity().getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+                null, where, whereParams, null);
         while (cursor.moveToNext()) {
             JSONObject photo = new JSONObject();
             photo.put("id", cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Photo._ID)));
@@ -173,18 +173,18 @@ public class ContactPicker extends Plugin {
             Uri photoUri = Uri.withAppendedPath(person, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
             photo.put("value", photoUri.toString());
             photos.put(photo);
-       } 
+       }
         cursor.close();
         return photos;
     }
 
     private JSONArray queryWebsite(String id) throws JSONException {
         JSONArray websites = new JSONArray();
-        String where = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?"; 
-        String[] whereParams = new String[]{id, 
-            ContactsContract.CommonDataKinds.Website.CONTENT_ITEM_TYPE}; 
-        Cursor cursor = this.ctx.getContentResolver().query(ContactsContract.Data.CONTENT_URI, 
-                null, where, whereParams, null); 
+        String where = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?";
+        String[] whereParams = new String[]{id,
+            ContactsContract.CommonDataKinds.Website.CONTENT_ITEM_TYPE};
+        Cursor cursor = this.cordova.getActivity().getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+                null, where, whereParams, null);
         while (cursor.moveToNext()) {
             JSONObject website = new JSONObject();
             website.put("id", cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Website._ID)));
@@ -192,31 +192,31 @@ public class ContactPicker extends Plugin {
             website.put("value", cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Website.DATA)));
             website.put("type", cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Website.TYPE)));
             websites.put(website);
-       } 
+       }
         cursor.close();
         return websites;
     }
-    
+
     private String queryNote(String id) {
         String note = null;
-        String noteWhere = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?"; 
-        String[] noteWhereParams = new String[]{id, 
-        ContactsContract.CommonDataKinds.Note.CONTENT_ITEM_TYPE}; 
-                Cursor noteCur = this.ctx.getContentResolver().query(ContactsContract.Data.CONTENT_URI, null, noteWhere, noteWhereParams, null); 
-        if (noteCur.moveToFirst()) { 
+        String noteWhere = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?";
+        String[] noteWhereParams = new String[]{id,
+        ContactsContract.CommonDataKinds.Note.CONTENT_ITEM_TYPE};
+                Cursor noteCur = this.cordova.getActivity().getContentResolver().query(ContactsContract.Data.CONTENT_URI, null, noteWhere, noteWhereParams, null);
+        if (noteCur.moveToFirst()) {
             note = noteCur.getString(noteCur.getColumnIndex(ContactsContract.CommonDataKinds.Note.NOTE));
-        } 
+        }
         noteCur.close();
         return note;
     }
 
     private JSONArray queryOrganization(String id) throws JSONException {
         JSONArray orgs = new JSONArray();
-        String where = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?"; 
-        String[] whereParams = new String[]{id, 
-            ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE}; 
-        Cursor c = this.ctx.getContentResolver().query(ContactsContract.Data.CONTENT_URI, 
-                null, where, whereParams, null); 
+        String where = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?";
+        String[] whereParams = new String[]{id,
+            ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE};
+        Cursor c = this.cordova.getActivity().getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+                null, where, whereParams, null);
         while (c.moveToNext()) {
             JSONObject organization = new JSONObject();
             organization.put("id", c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Organization._ID)));
@@ -226,18 +226,18 @@ public class ContactPicker extends Plugin {
             organization.put("name", c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Organization.COMPANY)));
             organization.put("title", c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Organization.TITLE)));
             orgs.put(organization);
-       } 
+       }
         c.close();
         return orgs;
     }
 
     private JSONArray queryAddress(String id) throws JSONException {
         JSONArray addresses = new JSONArray();
-        String where = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?"; 
-        String[] whereParams = new String[]{id, 
-            ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE}; 
-        Cursor c = this.ctx.getContentResolver().query(ContactsContract.Data.CONTENT_URI, 
-                null, where, whereParams, null); 
+        String where = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?";
+        String[] whereParams = new String[]{id,
+            ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE};
+        Cursor c = this.cordova.getActivity().getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+                null, where, whereParams, null);
         while (c.moveToNext()) {
             JSONObject address = new JSONObject();
             address.put("id", c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal._ID)));
@@ -250,18 +250,18 @@ public class ContactPicker extends Plugin {
             address.put("postalCode", c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.POSTCODE)));
             address.put("country", c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.COUNTRY)));
             addresses.put(address);
-       } 
+       }
         c.close();
         return addresses;
     }
 
     private JSONArray queryIm(String id) throws JSONException {
         JSONArray ims = new JSONArray();
-        String imWhere = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?"; 
-        String[] imWhereParams = new String[]{id, 
-            ContactsContract.CommonDataKinds.Im.CONTENT_ITEM_TYPE}; 
-        Cursor imCur = this.ctx.getContentResolver().query(ContactsContract.Data.CONTENT_URI, 
-                null, imWhere, imWhereParams, null); 
+        String imWhere = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?";
+        String[] imWhereParams = new String[]{id,
+            ContactsContract.CommonDataKinds.Im.CONTENT_ITEM_TYPE};
+        Cursor imCur = this.cordova.getActivity().getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+                null, imWhere, imWhereParams, null);
         while (imCur.moveToNext()) {
             JSONObject im = new JSONObject();
             im.put("id", imCur.getString(imCur.getColumnIndex(ContactsContract.CommonDataKinds.Im._ID)));
@@ -269,19 +269,19 @@ public class ContactPicker extends Plugin {
             im.put("value", imCur.getString(imCur.getColumnIndex(ContactsContract.CommonDataKinds.Im.DATA)));
             im.put("type", imCur.getString(imCur.getColumnIndex(ContactsContract.CommonDataKinds.Im.TYPE)));
             ims.put(im);
-       } 
+       }
         imCur.close();
         return ims;
     }
 
     private JSONArray entryQuery(String id, Uri contentUri, String contactId) throws JSONException {
         JSONArray entries = new JSONArray();
-        Cursor c = this.ctx.getContentResolver().query(
-            contentUri, 
-            null, 
-            contactId +" = ?", 
+        Cursor c = this.cordova.getActivity().getContentResolver().query(
+            contentUri,
+            null,
+            contactId +" = ?",
             new String[]{id}, null);
-        
+
         while (c.moveToNext()) {
             JSONObject entry = new JSONObject();
             entry.put("id", c.getString(c.getColumnIndex(_ID)));
@@ -289,15 +289,15 @@ public class ContactPicker extends Plugin {
             entry.put("value", c.getString(c.getColumnIndex(VALUE)));
             entry.put("type", getPhoneType(c.getInt(c.getColumnIndex(TYPE))));
             entries.put(entry);
-        } 
+        }
         c.close();
-        
+
         return entries;
     }
 
     /**
      * getPhoneType converts an Android phone type into a string
-     * @param type 
+     * @param type
      * @return phone type as string.
      */
     private String getPhoneType(int type) {
@@ -361,7 +361,7 @@ public class ContactPicker extends Plugin {
         stringType = "isdn";
         break;
       case ContactsContract.CommonDataKinds.Phone.TYPE_OTHER:
-      default: 
+      default:
         stringType = "other";
         break;
       }
@@ -370,20 +370,20 @@ public class ContactPicker extends Plugin {
 
     /**
      * getPhoneType converts an Android phone type into a string
-     * @param type 
+     * @param type
      * @return phone type as string.
      */
     private String getAddressType(int type) {
         String stringType;
         switch (type) {
-            case ContactsContract.CommonDataKinds.StructuredPostal.TYPE_HOME: 
+            case ContactsContract.CommonDataKinds.StructuredPostal.TYPE_HOME:
                 stringType = "home";
                 break;
-            case ContactsContract.CommonDataKinds.StructuredPostal.TYPE_WORK: 
+            case ContactsContract.CommonDataKinds.StructuredPostal.TYPE_WORK:
                 stringType = "work";
                 break;
-            case ContactsContract.CommonDataKinds.StructuredPostal.TYPE_OTHER: 
-            default: 
+            case ContactsContract.CommonDataKinds.StructuredPostal.TYPE_OTHER:
+            default:
                 stringType = "other";
                 break;
         }
@@ -392,20 +392,20 @@ public class ContactPicker extends Plugin {
 
     /**
      * getOrgType converts an Android organization type into a string
-     * @param type 
+     * @param type
      * @return organization type as string.
      */
     private String getOrgType(int type) {
         String stringType;
         switch (type) {
-            case ContactsContract.CommonDataKinds.Organization.TYPE_CUSTOM: 
+            case ContactsContract.CommonDataKinds.Organization.TYPE_CUSTOM:
                 stringType = "custom";
                 break;
-            case ContactsContract.CommonDataKinds.Organization.TYPE_WORK: 
+            case ContactsContract.CommonDataKinds.Organization.TYPE_WORK:
                 stringType = "work";
                 break;
-            case ContactsContract.CommonDataKinds.Organization.TYPE_OTHER: 
-            default: 
+            case ContactsContract.CommonDataKinds.Organization.TYPE_OTHER:
+            default:
                 stringType = "other";
                 break;
         }

@@ -31,14 +31,14 @@ public class FileDialog extends Plugin {
     @Override
     public PluginResult execute(String action, JSONArray args, String callbackId) {
         this.callbackId = callbackId;
-        
+
         JSONObject options = args.optJSONObject(0);
 
         if (action.equals("pickFile")) {
             showDialog(options, PICK_FILE_RESULT_CODE);
         } else if (action.equals("pickFolder")) {
             showDialog(options, PICK_DIRECTORY_RESULT_CODE);
-        } 
+        }
         else {
             return new PluginResult(PluginResult.Status.INVALID_ACTION);
         }
@@ -49,7 +49,7 @@ public class FileDialog extends Plugin {
 
     private void showDialog(JSONObject options, int type) {
         Intent intent;
-        if (type == PICK_FILE_RESULT_CODE) { 
+        if (type == PICK_FILE_RESULT_CODE) {
             intent = new Intent("org.openintents.action.PICK_FILE");
         } else {
             intent = new Intent("org.openintents.action.PICK_DIRECTORY");
@@ -66,14 +66,14 @@ public class FileDialog extends Plugin {
         }
         //intent.setData(Uri.fromFile(new File("/")));
         try {
-            this.ctx.startActivityForResult((Plugin)this,intent,PICK_FILE_RESULT_CODE);
-        } catch (ActivityNotFoundException e) { 
+            this.cordova.startActivityForResult((Plugin)this,intent,PICK_FILE_RESULT_CODE);
+        } catch (ActivityNotFoundException e) {
             showDownloadDialog();
         }
     }
-    
+
     private void showDownloadDialog() {
-        final Context context = this.ctx.getContext();
+        final Context context = this.cordova.getContext();
         Runnable runnable = new Runnable() {
             public void run() {
 
@@ -83,12 +83,12 @@ public class FileDialog extends Plugin {
                 dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dlg, int i) {
                         dlg.dismiss();
-                        Intent intent = new Intent(Intent.ACTION_VIEW, 
+                        Intent intent = new Intent(Intent.ACTION_VIEW,
                             Uri.parse("market://search?q=pname:org.openintents.filemanager")
                         );
                         try {
                             context.startActivity(intent);
-                        } catch (ActivityNotFoundException e) { 
+                        } catch (ActivityNotFoundException e) {
 //                          We don't have the market app installed, so download it directly.
                             Intent in = new Intent(Intent.ACTION_VIEW);
                             in.setData(Uri.parse("http://openintents.googlecode.com/files/FileManager-1.2.apk"));
@@ -107,7 +107,7 @@ public class FileDialog extends Plugin {
                 dialog.show();
             }
         };
-        this.ctx.runOnUiThread(runnable);
+        this.cordova.getActivity().runOnUiThread(runnable);
     }
 
     @Override
